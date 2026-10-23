@@ -40,7 +40,7 @@ struct GIFTimeline: View {
                     Text(timing.mode == .uniform ? "\(Int(delay.rounded()))ms" : "Original")
                         .font(.system(size: 13)).foregroundStyle(.secondary)
                 }
-                .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+                .menuStyle(.borderlessButton).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
                 .disabled(!canEditTiming)
                 .help("How long each frame shows")
             }
@@ -78,7 +78,7 @@ struct GIFTimeline: View {
         var position = frames.firstIndex { $0.index == selectedFrameIndex } ?? 0
         while !Task.isCancelled {
             let delay = max(GIFTimelineLimits.minimumFrameDuration, timing.delay(for: frames[position]))
-            do { try await Task.sleep(for: .seconds(delay)) } catch { return }
+            do { try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) } catch { return }
             position = (position + 1) % frames.count
             await onSelectFrame(frames[position].index)
         }
